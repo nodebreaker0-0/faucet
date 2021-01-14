@@ -1,12 +1,12 @@
 package main
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
-	"github.com/dpapathanasiou/go-recaptcha"
+
 	"github.com/joho/godotenv"
-	"github.com/tendermint/tmlibs/bech32"
-	"github.com/tomasen/realip"
+	//"github.com/tendermint/tmlibs/bech32"
+	
 	"io"
 	"log"
 	"net/http"
@@ -17,18 +17,18 @@ import (
 )
 
 var chain string
-var recaptchaSecretKey string
-var amountFaucet string
-var amountSteak string
+var amountAtom string
+var amountBand string
+var amountIris string
+var amountKava string
+var amountLuna string
+var amountScrt string
+var amountUsdt string
 var key string
 var pass string
 var node string
 var publicUrl string
-
-type claim_struct struct {
-	Address  string
-	Response string
-}
+var already []string
 
 func getEnv(key string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -41,23 +41,25 @@ func getEnv(key string) string {
 }
 
 func main() {
-	err := godotenv.Load(".env.local", ".env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
 	chain = getEnv("FAUCET_CHAIN")
-	recaptchaSecretKey = getEnv("FAUCET_RECAPTCHA_SECRET_KEY")
-	amountFaucet = getEnv("FAUCET_AMOUNT_FAUCET")
-	amountSteak = getEnv("FAUCET_AMOUNT_STEAK")
+	amountAtom = getEnv("FAUCET_AMOUNT_ATOM")
+	amountBand = getEnv("FAUCET_AMOUNT_BAND")
+	amountIris = getEnv("FAUCET_AMOUNT_IRIS")
+	amountKava = getEnv("FAUCET_AMOUNT_KAVA")
+	amountLuna = getEnv("FAUCET_AMOUNT_LUNA")
+	amountScrt = getEnv("FAUCET_AMOUNT_SCRT")
+	amountUsdt = getEnv("FAUCET_AMOUNT_USDT")
 	key = getEnv("FAUCET_KEY")
 	pass = getEnv("FAUCET_PASS")
 	node = getEnv("FAUCET_NODE")
 	publicUrl = getEnv("FAUCET_PUBLIC_URL")
 
-	recaptcha.Init(recaptchaSecretKey)
-
-	http.HandleFunc("/claim", getCoinsHandler)
+	http.HandleFunc("/", getCoinsHandler)
 
 	if err := http.ListenAndServe(publicUrl, nil); err != nil {
 		log.Fatal("failed to start server", err)
@@ -78,7 +80,7 @@ func goExecute(command string) (cmd *exec.Cmd, pipeIn io.WriteCloser, pipeOut io
 	pipeIn, _ = cmd.StdinPipe()
 	pipeOut, _ = cmd.StdoutPipe()
 	go cmd.Start()
-	time.Sleep(time.Second)
+	time.Sleep(2*time.Second)
 	return cmd, pipeIn, pipeOut
 }
 
@@ -96,51 +98,29 @@ func getCmd(command string) *exec.Cmd {
 	return cmd
 }
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
-	var claim claim_struct
+	enableCors(&w)
+	query := request.URL.Query()
+	address := query.Get("address")
 
-	// decode JSON response from front end
-	decoder := json.NewDecoder(request.Body)
-	decoderErr := decoder.Decode(&claim)
-	if decoderErr != nil {
-		panic(decoderErr)
+	for _, addres := range already{
+		if address == addres{
+			fmt.Fprintf(w, "You can only make 1 faucet request per account.")
+			return
+		}
 	}
+	already = append(already, address)
 
-	// make sure address is bech32
-	readableAddress, decodedAddress, decodeErr := bech32.DecodeAndConvert(claim.Address)
-	if decodeErr != nil {
-		panic(decodeErr)
-	}
-	// re-encode the address in bech32
-	encodedAddress, encodeErr := bech32.ConvertAndEncode(readableAddress, decodedAddress)
-	if encodeErr != nil {
-		panic(encodeErr)
-	}
-
-	// make sure captcha is valid
-	clientIP := realip.FromRequest(request)
-	captchaResponse := claim.Response
-	captchaPassed, captchaErr := recaptcha.Confirm(clientIP, captchaResponse)
-	if captchaErr != nil {
-		panic(captchaErr)
-	}
-
-	// send the coins!
-	if captchaPassed {
-		sendFaucet := fmt.Sprintf(
-			"gaiacli send --to=%v --name=%v --chain-id=%v --amount=%v",
-			encodedAddress, key, chain, amountFaucet)
-		fmt.Println(time.Now().UTC().Format(time.RFC3339), encodedAddress, "[1]")
-		executeCmd(sendFaucet, pass)
-
-		time.Sleep(5 * time.Second)
-
-		sendSteak := fmt.Sprintf(
-			"gaiacli send --to=%v --name=%v --chain-id=%v --amount=%v",
-			encodedAddress, key, chain, amountSteak)
-		fmt.Println(time.Now().UTC().Format(time.RFC3339), encodedAddress, "[2]")
-		executeCmd(sendSteak, pass)
-	}
+	sendFaucet := fmt.Sprintf("liquidityd tx bank send %v %v %v,%v,%v,%v,%v,%v,%v --chain-id=%v -y --home /root/.liquidityd/",
+	key , address, amountAtom,amountBand,amountIris,amountKava,amountLuna,amountScrt,amountUsdt,chain)
+	fmt.Println(sendFaucet)
+	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
+	executeCmd(sendFaucet, pass)
+	fmt.Fprintf(w, "Your faucet request has been processed successfully. Please check your wallet :)")
 
 	return
 }
