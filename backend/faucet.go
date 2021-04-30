@@ -18,12 +18,19 @@ import (
 
 var chain string
 var amountAtom string
-var amountBand string
-var amountIris string
-var amountKava string
+var amountRegen string
+var amountBtsg string
+var amountDvpn string
+var amountXprt string
+var amountAkt string
 var amountLuna string
-var amountScrt string
-var amountUsdt string
+var amountNgm string
+var amountGcyb string
+var amountIris string
+var amountRun string
+var amountCom string
+var amountDsm string
+
 var key string
 var pass string
 var node string
@@ -48,12 +55,19 @@ func main() {
 
 	chain = getEnv("FAUCET_CHAIN")
 	amountAtom = getEnv("FAUCET_AMOUNT_ATOM")
-	amountBand = getEnv("FAUCET_AMOUNT_BAND")
-	amountIris = getEnv("FAUCET_AMOUNT_IRIS")
-	amountKava = getEnv("FAUCET_AMOUNT_KAVA")
-	amountLuna = getEnv("FAUCET_AMOUNT_LUNA")
-	amountScrt = getEnv("FAUCET_AMOUNT_SCRT")
-	amountUsdt = getEnv("FAUCET_AMOUNT_USDT")
+	amountRegen  = getEnv("FAUCET_AMOUNT_REGEN")
+	amountBtsg  = getEnv("FAUCET_AMOUNT_BTSG")
+	amountDvpn  = getEnv("FAUCET_AMOUNT_DVPN")
+	amountXprt  = getEnv("FAUCET_AMOUNT_XPRT")
+	amountAkt  = getEnv("FAUCET_AMOUNT_AKT")
+	amountLuna  = getEnv("FAUCET_AMOUNT_LUNA")
+	amountNgm  = getEnv("FAUCET_AMOUNT_NGM")
+	amountGcyb  = getEnv("FAUCET_AMOUNT_GCYB")
+	amountIris  = getEnv("FAUCET_AMOUNT_IRIS")
+	amountRun  = getEnv("FAUCET_AMOUNT_RUN")
+	amountCom  = getEnv("FAUCET_AMOUNT_COM")
+	amountDsm  = getEnv("FAUCET_AMOUNT_DSM")
+
 	key = getEnv("FAUCET_KEY")
 	pass = getEnv("FAUCET_PASS")
 	node = getEnv("FAUCET_NODE")
@@ -115,8 +129,8 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	}
 	already = append(already, address)
 
-	sendFaucet := fmt.Sprintf("liquidityd tx bank send %v %v %v,%v,%v,%v,%v,%v,%v --chain-id=%v -y --home /root/.liquidityd/",
-	key , address, amountAtom,amountBand,amountIris,amountKava,amountLuna,amountScrt,amountUsdt,chain)
+	sendFaucet := fmt.Sprintf("liquidityd tx bank send %v %v %v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v --chain-id=%v -y --home /root/.liquidityapp",
+	key , address,amountAtom,amountRegen,amountBtsg,amountDvpn,amountXprt,amountAkt,amountLuna,amountNgm,amountGcyb,amountIris,amountRun,amountCom,amountDsm,chain)
 	fmt.Println(sendFaucet)
 	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
 	executeCmd(sendFaucet, pass)
