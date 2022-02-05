@@ -36,7 +36,7 @@ func getEnv(key string) string {
 }
 
 func main() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load(".env_squa")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
