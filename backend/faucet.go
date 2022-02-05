@@ -6,7 +6,7 @@ import (
 
 	"github.com/joho/godotenv"
 	//"github.com/tendermint/tmlibs/bech32"
-	
+
 	"io"
 	"log"
 	"net/http"
@@ -17,19 +17,7 @@ import (
 )
 
 var chain string
-var amountAtom string
-var amountRegen string
-var amountBtsg string
-var amountDvpn string
-var amountXprt string
-var amountAkt string
-var amountLuna string
-var amountNgm string
-var amountGcyb string
-var amountIris string
-var amountRun string
-var amountCom string
-var amountDsm string
+var amountSqua string
 
 var key string
 var pass string
@@ -54,19 +42,7 @@ func main() {
 	}
 
 	chain = getEnv("FAUCET_CHAIN")
-	amountAtom = getEnv("FAUCET_AMOUNT_ATOM")
-	amountRegen  = getEnv("FAUCET_AMOUNT_REGEN")
-	amountBtsg  = getEnv("FAUCET_AMOUNT_BTSG")
-	amountDvpn  = getEnv("FAUCET_AMOUNT_DVPN")
-	amountXprt  = getEnv("FAUCET_AMOUNT_XPRT")
-	amountAkt  = getEnv("FAUCET_AMOUNT_AKT")
-	amountLuna  = getEnv("FAUCET_AMOUNT_LUNA")
-	amountNgm  = getEnv("FAUCET_AMOUNT_NGM")
-	amountGcyb  = getEnv("FAUCET_AMOUNT_GCYB")
-	amountIris  = getEnv("FAUCET_AMOUNT_IRIS")
-	amountRun  = getEnv("FAUCET_AMOUNT_RUN")
-	amountCom  = getEnv("FAUCET_AMOUNT_COM")
-	amountDsm  = getEnv("FAUCET_AMOUNT_DSM")
+	amountSqua = getEnv("FAUCET_AMOUNT_Squa")
 
 	key = getEnv("FAUCET_KEY")
 	pass = getEnv("FAUCET_PASS")
@@ -94,7 +70,7 @@ func goExecute(command string) (cmd *exec.Cmd, pipeIn io.WriteCloser, pipeOut io
 	pipeIn, _ = cmd.StdinPipe()
 	pipeOut, _ = cmd.StdoutPipe()
 	go cmd.Start()
-	time.Sleep(2*time.Second)
+	time.Sleep(2 * time.Second)
 	return cmd, pipeIn, pipeOut
 }
 
@@ -121,16 +97,16 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	query := request.URL.Query()
 	address := query.Get("address")
 
-	for _, addres := range already{
-		if address == addres{
+	for _, addres := range already {
+		if address == addres {
 			fmt.Fprintf(w, "You can only make 1 faucet request per account.")
 			return
 		}
 	}
 	already = append(already, address)
 
-	sendFaucet := fmt.Sprintf("liquidityd tx bank send %v %v %v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v --chain-id=%v -y --home /root/.liquidityapp",
-	key , address,amountAtom,amountRegen,amountBtsg,amountDvpn,amountXprt,amountAkt,amountLuna,amountNgm,amountGcyb,amountIris,amountRun,amountCom,amountDsm,chain)
+	sendFaucet := fmt.Sprintf("squad tx bank send %v %v %v --chain-id=%v -y --home /root/.squadapp --node %v",
+		key, address, amountSqua, chain, node)
 	fmt.Println(sendFaucet)
 	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
 	executeCmd(sendFaucet, pass)
