@@ -17,11 +17,11 @@ import (
 )
 
 var chain string
-var amountLuna string
-var amountKrw string
-var amountSdr string
-var amountUsd string
-var amountMnt string
+var amountOsmo string
+var amountBtc string
+var amountEth string
+var amountSol string
+var amountBnb string
 
 var key string
 var pass string
@@ -40,17 +40,17 @@ func getEnv(key string) string {
 }
 
 func main() {
-	err := godotenv.Load(".env_terra")
+	err := godotenv.Load(".env_osmosis")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
 	chain = getEnv("FAUCET_CHAIN")
-	amountLuna = getEnv("FAUCET_AMOUNT_luna")
-	amountKrw = getEnv("FAUCET_AMOUNT_krw")
-	amountUsd = getEnv("FAUCET_AMOUNT_usd")
-	amountMnt = getEnv("FAUCET_AMOUNT_mnt")
-	amountSdr = getEnv("FAUCET_AMOUNT_sdr")
+	amountOsmo = getEnv("FAUCET_AMOUNT_osmo")
+	amountBtc = getEnv("FAUCET_AMOUNT_btc")
+	amountEth = getEnv("FAUCET_AMOUNT_eth")
+	amountSol = getEnv("FAUCET_AMOUNT_sol")
+	amountBnb = getEnv("FAUCET_AMOUNT_bnb")
 
 	key = getEnv("FAUCET_KEY")
 	pass = getEnv("FAUCET_PASS")
@@ -113,8 +113,8 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	}
 	already = append(already, address)
 
-	sendFaucet := fmt.Sprintf("terrad tx bank send %v %v %v,%v,%v,%v,%v --chain-id=%v -y --home /root/.terra --node %v",
-		key, address, amountLuna, amountKrw, amountMnt, amountSdr, amountUsd, chain, node)
+	sendFaucet := fmt.Sprintf("osmosisd tx bank send %v %v %v,%v,%v,%v,%v --chain-id=%v -y --home /root/.osmosisd --node %v",
+		key, address, amountOsmo, amountBtc, amountEth, amountSol, amountBnb, chain, node)
 	fmt.Println(sendFaucet)
 	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
 	executeCmd(sendFaucet, pass)
