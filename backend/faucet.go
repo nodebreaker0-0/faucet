@@ -113,7 +113,7 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	}
 	already = append(already, address)
 
-	sendFaucet := fmt.Sprintf("terrad tx bank send %v %v %v,%v,%v,%v,%v --chain-id=%v -y --home /root/.squadapp --node %v",
+	sendFaucet := fmt.Sprintf("terrad tx bank send %v %v %v,%v,%v,%v,%v --chain-id=%v -y --home /root/.terra --node %v",
 		key, address, amountLuna, amountKrw, amountMnt, amountSdr, amountUsd, chain, node)
 	fmt.Println(sendFaucet)
 	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
