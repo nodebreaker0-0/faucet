@@ -20,7 +20,6 @@ var chain string
 var amountSqua string
 
 var key string
-var pass string
 var node string
 var publicUrl string
 var already []string
@@ -45,7 +44,6 @@ func main() {
 	amountSqua = getEnv("FAUCET_AMOUNT_Squa")
 
 	key = getEnv("FAUCET_KEY")
-	pass = getEnv("FAUCET_PASS")
 	node = getEnv("FAUCET_NODE")
 	publicUrl = getEnv("FAUCET_PUBLIC_URL")
 
@@ -54,15 +52,6 @@ func main() {
 	if err := http.ListenAndServe(publicUrl, nil); err != nil {
 		log.Fatal("failed to start server", err)
 	}
-}
-
-func executeCmd(command string, writes ...string) {
-	cmd, wc, _ := goExecute(command)
-
-	for _, write := range writes {
-		wc.Write([]byte(write + "\n"))
-	}
-	cmd.Wait()
 }
 
 func goExecute(command string) (cmd *exec.Cmd, pipeIn io.WriteCloser, pipeOut io.ReadCloser) {
@@ -105,11 +94,11 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	}
 	already = append(already, address)
 
-	sendFaucet := fmt.Sprintf("squad tx bank send %v %v %v --chain-id=%v -y --home /root/.squadapp --node %v",
+	sendFaucet := fmt.Sprintf("squad tx bank send %v %v %v --chain-id=%v -y --home /root/.squadapp --node %v --keyring-backend test",
 		key, address, amountSqua, chain, node)
 	fmt.Println(sendFaucet)
 	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
-	executeCmd(sendFaucet, pass)
+	goExecute(sendFaucet)
 	fmt.Fprintf(w, "Your faucet request has been processed successfully. Please check your wallet :)")
 
 	return
