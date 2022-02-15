@@ -26,7 +26,8 @@ var amountBnb string
 var key string
 var node string
 var publicUrl string
-var already []string
+
+//var already []string
 
 func getEnv(key string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -94,13 +95,13 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	query := request.URL.Query()
 	address := query.Get("address")
 
-	for _, addres := range already {
-		if address == addres {
-			fmt.Fprintf(w, "You can only make 1 faucet request per account.")
-			return
-		}
-	}
-	already = append(already, address)
+	//for _, addres := range already {
+	//	if address == addres {
+	//		fmt.Fprintf(w, "You can only make 1 faucet request per account.")
+	//		return
+	//	}
+	//}
+	//already = append(already, address)
 
 	sendFaucet := fmt.Sprintf("osmosisd tx bank send %v %v %v,%v,%v,%v,%v --chain-id=%v -y --home /root/.osmosisd --node %v --keyring-backend test",
 		key, address, amountOsmo, amountBtc, amountEth, amountSol, amountBnb, chain, node)
