@@ -109,6 +109,4 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
 	goExecute(sendFaucet)
 	fmt.Fprintf(w, "Your faucet request has been processed successfully. Please check your wallet :)")
-
-	return
 }
