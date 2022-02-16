@@ -3,3 +3,4 @@ vendor
 .DS_Store
 backend/faucet
 backend/.env.local
+backend/nohup.out
