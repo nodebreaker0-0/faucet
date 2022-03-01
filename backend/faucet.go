@@ -17,7 +17,7 @@ import (
 )
 
 var chain string
-var amountSqua string
+var amountATOM string
 
 var key string
 var node string
@@ -36,13 +36,13 @@ func getEnv(key string) string {
 }
 
 func main() {
-	err := godotenv.Load(".env_squa")
+	err := godotenv.Load(".env_cosmos")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
 	chain = getEnv("FAUCET_CHAIN")
-	amountSqua = getEnv("FAUCET_AMOUNT_Squa")
+	amountATOM = getEnv("FAUCET_AMOUNT_ATOM")
 
 	key = getEnv("FAUCET_KEY")
 	node = getEnv("FAUCET_NODE")
@@ -95,8 +95,8 @@ func getCoinsHandler(w http.ResponseWriter, request *http.Request) {
 	//}
 	//already = append(already, address)
 
-	sendFaucet := fmt.Sprintf("squad tx bank send %v %v %v --chain-id=%v -y --home /root/.squadapp --node %v --keyring-backend test",
-		key, address, amountSqua, chain, node)
+	sendFaucet := fmt.Sprintf("gaiad tx bank send %v %v %v --chain-id=%v -y --home /root/.gaia --node %v --keyring-backend test",
+		key, address, amountATOM, chain, node)
 	fmt.Println(sendFaucet)
 	fmt.Println(time.Now().UTC().Format(time.RFC3339), address, "[1]")
 	goExecute(sendFaucet)
